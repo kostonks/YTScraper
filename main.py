@@ -5,37 +5,42 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
-from bs4 import BeautifulSoup
+from selenium.webdriver.chrome.options import Options
 
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+options = Options()
+options.add_argument("--headless")
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+driver.maximize_window()
 
-urls = ["https://www.youtube.com/@michaeldonato"]
+urls = ["https://www.youtube.com/@michaeldonato"] #Insert any links (this is a friend of mine)
 
 for url in urls:
-    driver.get(f'{url}/videos?view=0&sort=p&flow=grid')
+    driver.get(f"{url}/videos?view=0&sort=p&flow=grid")
 
     try:
-        WebDriverWait(driver, 10).until(
+        WebDriverWait(driver, 15).until(
             EC.presence_of_element_located((By.ID, "video-title"))
         )
     except Exception as e:
         print(f"Timeout or error loading page: {e}")
         continue
 
-    for _ in range(5):
+    last_height = driver.execute_script("return document.documentElement.scrollHeight")
+    while True:
         driver.execute_script("window.scrollTo(0, document.documentElement.scrollHeight);")
-        time.sleep(1)
+        time.sleep(2)
+        new_height = driver.execute_script("return document.documentElement.scrollHeight")
+        if new_height == last_height:
+            break
+        last_height = new_height
 
-    content = driver.page_source
-    soup = BeautifulSoup(content, 'lxml')
+    video_elements = driver.find_elements(By.ID, "video-title")
 
-    titles = soup.find_all('a', id='video-title')
-
-    print(f"\n Video Titles from {url}:")
-    if titles:
-        for i, title in enumerate(titles):
-            print(f"{i+1}. {title.text.strip()}")
+    print(f"\nVideo Titles from {url}:")
+    if video_elements:
+        for i, video in enumerate(video_elements):
+            print(f"{i+1}. {video.text.strip()}")
     else:
-        print(" No video titles found.")
+        print("No video titles found.")
 
 driver.quit()
