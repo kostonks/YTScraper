@@ -35,11 +35,29 @@ for url in urls:
         last_height = new_height
 
     video_elements = driver.find_elements(By.ID, "video-title")
+    video_data = []
 
-    print(f"\nVideo Titles from {url}:")
+    print(f"\nVideos from {url}:")
     if video_elements:
         for i, video in enumerate(video_elements):
-            print(f"{i+1}. {video.text.strip()}")
+            try:
+                title = video.text.strip()
+
+                parent = video.find_element(By.XPATH, "./../../..")
+                views = parent.find_element(By.XPATH, ".//div[@id='metadata-line']/span[1]").text  # Corrected: Views
+                upload_date = parent.find_element(By.XPATH, ".//div[@id='metadata-line']/span[2]").text  # Corrected: Upload Date
+
+                video_data.append({
+                    "title": title,
+                    "upload_date": upload_date,
+                    "views": views
+                })
+
+                print(f"{i+1}. Title: {title}")
+                print(f"   Upload Date: {upload_date}")
+                print(f"   Views: {views}")
+            except Exception as e:
+                print(f"Error extracting data for video {i+1}: {e}")
     else:
         print("No video titles found.")
 

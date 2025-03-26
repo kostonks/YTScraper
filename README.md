@@ -3,13 +3,12 @@
 YTScraper is a Python-based web scraper that extracts video titles from YouTube channels using Selenium.
 
 ## Features
-- Scrapes video titles from specified YouTube channels.
+- Scrapes video titles, upload date and views from specified YouTube channels.
 - Automatically scrolls through the video list to load more content.
-- Handles page loading and timeout errors gracefully.
+- Handles page loading and timeout errors.
 
 ## Requirements
-- Python 3.7 or higher
-- Google Chrome browser
+- Python 
 - ChromeDriver
 - Required Python packages:
   - Selenium
