@@ -1,5 +1,6 @@
 import time
 import csv  
+import logging
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -7,6 +8,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
+
+logging.basicConfig(level=logging.INFO)
 
 options = Options()
 options.add_argument("--headless")
@@ -47,9 +50,9 @@ for url in url:
                 upload_date = parent.find_element(By.XPATH, ".//div[@id='metadata-line']/span[2]").text  
 
                 video_data.append({
-                    "title": title,
-                    "upload_date": upload_date,
-                    "views": views
+                    "Title": title,  
+                    "Upload_date": upload_date,
+                    "Views": views
                 })
             except Exception:
                 continue
@@ -61,5 +64,8 @@ for url in url:
         writer = csv.DictWriter(file, fieldnames=["Title", "Upload_date", "Views"])
         writer.writeheader()
         writer.writerows(video_data)
+
+    logging.info(f"Scraping completed. Total videos scraped: {len(video_data)}")
+    logging.info(f"Data saved to: {output_file}")
 
 driver.quit()
