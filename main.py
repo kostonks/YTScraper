@@ -28,14 +28,19 @@ def clean_title(title):
     return re.sub(r'[^\w\s]', '', title).strip()
 
 def normalize_views(views):
-    if 'K' in views:
-        return int(float(views.replace('K', '').replace(',', '')) * 1000)
-    elif 'M' in views:
-        return int(float(views.replace('M', '').replace(',', '')) * 1000000)
-    elif 'B' in views:
-        return int(float(views.replace('B', '').replace(',', '')) * 1000000000)
-    else:
-        return int(views.replace(',', '').replace(' views', '').strip())
+    try:
+        views = views.lower().replace(' views', '').replace(',', '').strip()
+        if 'k' in views:
+            return int(float(views.replace('k', '')) * 1000)
+        elif 'm' in views:
+            return int(float(views.replace('m', '')) * 1000000)
+        elif 'b' in views:
+            return int(float(views.replace('b', '')) * 1000000000)
+        else:
+            return int(views)
+    except ValueError:
+        logging.error(f"Unable to normalize views: {views}")
+        return 0  
 
 # Loop through each URL in the list
 for url in url:
