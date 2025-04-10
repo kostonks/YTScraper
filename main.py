@@ -1,6 +1,7 @@
 import time
 import csv  
 import logging
+import re
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -22,6 +23,19 @@ driver.maximize_window()
 
 # List of YouTube channel URLs to scrape
 url = ["https://www.youtube.com/@michaeldonato"]  # Insert any link (this is a friend of mine)
+
+def clean_title(title):
+    return re.sub(r'[^\w\s]', '', title).strip()
+
+def normalize_views(views):
+    if 'K' in views:
+        return int(float(views.replace('K', '').replace(',', '')) * 1000)
+    elif 'M' in views:
+        return int(float(views.replace('M', '').replace(',', '')) * 1000000)
+    elif 'B' in views:
+        return int(float(views.replace('B', '').replace(',', '')) * 1000000000)
+    else:
+        return int(views.replace(',', '').replace(' views', '').strip())
 
 # Loop through each URL in the list
 for url in url:
@@ -58,7 +72,7 @@ for url in url:
         for video in video_elements:
             try:
                 # Extract video title
-                title = video.text.strip()
+                title = clean_title(video.text.strip())
 
                 # Navigate to the parent element to extract additional metadata
                 parent = video.find_element(By.XPATH, "./../../..")
@@ -69,7 +83,7 @@ for url in url:
                 video_data.append({
                     "Title": title,  
                     "Upload_date": upload_date,
-                    "Views": views
+                    "Views": normalize_views(views)
                 })
             except Exception:
                 # Skip the video if an error occurs
